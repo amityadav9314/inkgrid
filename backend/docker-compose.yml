@@ -1,0 +1,15 @@
+services:
+  go_chat_be:
+    image: goinkgrid-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8034:8034"
+    environment:
+      - ENV=dev
+      - LOG_FILE=/opt/logs/goinkgrid/goinkgrid.json
+    volumes:
+      - .:/app
+      - "/mnt/c/Users/AMIT\ KUMAR/Desktop/Logs/GoInkgrid:/opt/logs/goinkgrid"
+    container_name: GoInkgridBE
