@@ -1,0 +1,99 @@
+# Go Backend
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below if you want to check in your vendor directory)
+vendor/
+
+# Go workspace file
+go.work
+
+# Binary output directories
+bin/
+dist/
+build/
+backend/bin/
+backend/dist/
+
+# Local environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# React Frontend
+# dependencies
+node_modules/
+frontend/node_modules/
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+frontend/coverage/
+
+# production
+/frontend/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Local uploads
+uploads/
+/uploads
+/backend/uploads/
+
+# Temporary files
+tmp/
+temp/
+
+# Generated files
+*.generated.go
+frontend/src/generated/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker volumes
+docker-volumes/

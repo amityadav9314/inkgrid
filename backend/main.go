@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	akyWs "github.com/amityadav9314/goinkgrid/pkg/websocket"
 
@@ -48,12 +53,36 @@ func main() {
 
 	routers.InitRoutes(mainRouter, ENVIRONMENT, pool)
 
-	log.Println("Server is running on port:", PORT)
-	err := mainRouter.Run(":" + PORT)
-	if err != nil {
-		log.Println("Error in starting server: ", err)
-		return
+	// Create HTTP server
+	server := &http.Server{
+		Addr:    ":" + PORT,
+		Handler: mainRouter,
 	}
+
+	// Start server in a goroutine
+	go func() {
+		log.Println("Server is running on port:", PORT)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shut down the server
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	// Create a deadline for server shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Attempt graceful shutdown
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server exited properly")
 }
 
 func initialize() {
