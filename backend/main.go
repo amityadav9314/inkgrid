@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	// db "github.com/amityadav9314/goinkgrid/internal/db/postgres"
 	akyWs "github.com/amityadav9314/goinkgrid/pkg/websocket"
 
 	"github.com/amityadav9314/goinkgrid/config"
@@ -18,7 +19,6 @@ import (
 	"github.com/amityadav9314/goinkgrid/logger"
 	"github.com/amityadav9314/goinkgrid/routers"
 	"github.com/amityadav9314/goinkgrid/utils"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,19 +33,37 @@ func main() {
 	mainRouter := gin.Default()
 	mainRouter.MaxMultipartMemory = 10 << 20 // 100 MiB
 
-	// Configure CORS
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"*"} // Ensure the correct origin is included
-	corsConfig.AllowHeaders = []string{"*"}
-	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "OPTIONS"}
-	corsConfig.ExposeHeaders = []string{"*"} // Expose all headers
-	corsConfig.AllowCredentials = true       // Allow credentials if needed
-	mainRouter.Use(cors.New(corsConfig))
+	// Configure CORS - Use the most permissive configuration for development
+	mainRouter.Use(func(c *gin.Context) {
+		// Allow all origins in development
+		origin := c.Request.Header.Get("Origin")
+		if origin == "" {
+			origin = "*"
+		}
 
-	// Handle OPTIONS method for preflight requests
-	mainRouter.OPTIONS("/goinkgrid/*path", func(c *gin.Context) {
-		c.Status(http.StatusOK)
+		// Set CORS headers with maximum permissiveness for development
+		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD")
+		c.Writer.Header().Set("Access-Control-Max-Age", "86400") // 24 hours
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type, Authorization")
+
+		// Handle preflight requests
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
 	})
+
+	// Global OPTIONS handler for preflight requests
+	mainRouter.OPTIONS("/*path", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
+
+	// db.Init()
 
 	// Initialize websocket pool
 	var pool = akyWs.NewPool()

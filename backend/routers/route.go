@@ -9,6 +9,9 @@ import (
 )
 
 func InitRoutes(mainRouter *gin.Engine, environment string, pool *akyWs.Pool) {
+	// Serve static files from uploads directory
+	mainRouter.Static("/uploads", "./uploads")
+
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler("your-jwt-secret-key")
 	imageHandler := handlers.NewImageHandler("./uploads")
@@ -53,7 +56,7 @@ func InitRoutes(mainRouter *gin.Engine, environment string, pool *akyWs.Pool) {
 		}
 
 		// Project routes (all require auth)
-		projects := apiV1.Group("/projects")
+		projects := apiV1.Group("/projects") // Removed trailing slash to prevent redirects
 		projects.Use(authMiddleware.RequireAuth())
 		{
 			projects.GET("/", projectHandler.ListProjects)

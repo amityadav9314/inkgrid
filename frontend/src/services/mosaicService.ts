@@ -27,19 +27,22 @@ interface MosaicGenerationStatus {
 }
 
 class MosaicService {
+
   async uploadMainImage(file: File, projectId?: number): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      
+
       if (projectId) {
         formData.append('project_id', projectId.toString());
       }
-      
-      return await api.upload('/images/main', formData);
+
+      const response = await api.upload('/images/main', formData);
+      console.log('MosaicService: API response:', response); // Debugging line
+      return response;
     } catch (error) {
-      console.error('Error uploading main image:', error);
-      throw error;
+      console.error('MosaicService: Error uploading main image:', error); // Ensure this is logged
+      throw error; // Propagate the error
     }
   }
 

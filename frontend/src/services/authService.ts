@@ -10,6 +10,7 @@ const authClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 interface LoginResponse {

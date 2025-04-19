@@ -40,17 +40,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('AuthContext initialization:', { storedToken, storedUser });
     
     if (storedToken && storedUser) {
-      setToken(storedToken);
       try {
         const parsedUser = JSON.parse(storedUser);
         console.log('Parsed user:', parsedUser);
+        
+        // Important: Set both token and user in state
+        setToken(storedToken);
         setUser(parsedUser);
+        
+        console.log('Auth state set from localStorage');
       } catch (error) {
         console.error('Failed to parse stored user data:', error);
         // Clear invalid data
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
+    } else {
+      console.log('No stored authentication data found');
     }
     
     setIsLoading(false);
@@ -58,23 +64,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   // Debug effect to monitor authentication state
   useEffect(() => {
+    const isAuth = !!user && !!token;
     console.log('Auth state updated:', { 
       user, 
       token, 
-      isAuthenticated: !!user && !!token 
+      isAuthenticated: isAuth 
     });
+    
+    // If we have a token but no auth state, something is wrong - try to fix it
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    if (storedToken && storedUser && !isAuth) {
+      console.log('Auth state inconsistency detected, attempting to fix...');
+      try {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Failed to restore auth state:', error);
+      }
+    }
   }, [user, token]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      console.log('Attempting login for:', email);
       const response = await authService.login(email, password);
+      console.log('Login response:', response);
+      
+      // Store in localStorage first
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      // Then update state
       setToken(response.token);
       setUser(response.user);
       
-      // Store in localStorage
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      console.log('Login successful, auth state updated');
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -104,15 +130,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('user');
   };
 
+  // Calculate isAuthenticated based on both user and token
+  const isAuthenticated = !!user && !!token;
+  
   const value = {
     user,
     token,
-    isAuthenticated: !!user && !!token,
+    isAuthenticated,
     isLoading,
     login,
     register,
     logout
   };
+  
+  // Debug the final auth state before rendering
+  console.log('AuthContext providing state:', { user, token, isAuthenticated });
 
   return (
     <AuthContext.Provider value={value}>

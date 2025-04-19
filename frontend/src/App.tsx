@@ -10,6 +10,7 @@ import MosaicCreator from './pages/MosaicCreator';
 import Projects from './pages/Projects';
 import Settings from './pages/Settings';
 import './styles/global.css';
+import Sidebar from 'components/layout/Sidebar';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,9 @@ const App: React.FC = () => {
         <MosaicProvider>
           <div className="app">
             <Header />
+            {/* <Sidebar isOpen={false} toggleSidebar={function (): void { */}
+              {/* throw new Error('Function not implemented.'); */}
+            {/* } } /> */}
             <main className="main-content">
               <Routes>
                 <Route path="/" element={<Home />} />

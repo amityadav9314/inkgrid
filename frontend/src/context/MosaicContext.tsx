@@ -1,6 +1,7 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface Image {
+// Define the image info type
+export interface ImageInfo {
   id: string;
   path: string;
   filename: string;
@@ -9,94 +10,73 @@ interface Image {
   format: string;
 }
 
-interface MosaicSettings {
-  tileSize: number;
-  tileDensity: number;
-  overlayRatio: number;
-  style: 'classic' | 'random' | 'flowing';
-  colorCorrection: boolean;
-}
-
-interface MosaicContextType {
-  mainImage: Image | null;
-  tileImages: Image[];
-  settings: MosaicSettings;
-  generationId: string | null;
+// Define the context shape
+export interface MosaicContextType {
+  mainImage: ImageInfo | null;
+  setMainImage: (image: ImageInfo | null) => void;
+  tileImages: ImageInfo[];
+  setTileImages: (images: ImageInfo[]) => void;
+  settings: {
+    tileSize: number;
+    tileDensity: number;
+    colorAdjustment: number;
+  };
+  updateSettings: (newSettings: Partial<typeof defaultSettings>) => void;
   generationStatus: string | null;
-  setMainImage: (image: Image | null) => void;
-  addTileImage: (image: Image) => void;
-  removeTileImage: (id: string) => void;
-  clearTileImages: () => void;
-  updateSettings: (settings: Partial<MosaicSettings>) => void;
-  resetSettings: () => void;
-  setGenerationId: (id: string | null) => void;
   setGenerationStatus: (status: string | null) => void;
+  generationId: string | null;
+  setGenerationId: (id: string | null) => void;
 }
 
-const defaultSettings: MosaicSettings = {
+const defaultSettings = {
   tileSize: 50,
   tileDensity: 80,
-  overlayRatio: 0.7,
-  style: 'classic',
-  colorCorrection: true
+  colorAdjustment: 50,
 };
 
-const MosaicContext = createContext<MosaicContextType | undefined>(undefined);
+// Create the context
+const MosaicContext = createContext<MosaicContextType>({
+  mainImage: null,
+  setMainImage: () => {},
+  tileImages: [],
+  setTileImages: () => {},
+  settings: defaultSettings,
+  updateSettings: () => {},
+  generationStatus: null,
+  setGenerationStatus: () => {},
+  generationId: null,
+  setGenerationId: () => {},
+});
 
-export const useMosaic = () => {
-  const context = useContext(MosaicContext);
-  if (context === undefined) {
-    throw new Error('useMosaic must be used within a MosaicProvider');
-  }
-  return context;
-};
-
-export const MosaicProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [mainImage, setMainImage] = useState<Image | null>(null);
-  const [tileImages, setTileImages] = useState<Image[]>([]);
-  const [settings, setSettings] = useState<MosaicSettings>(defaultSettings);
-  const [generationId, setGenerationId] = useState<string | null>(null);
+export const MosaicProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [mainImage, setMainImage] = useState<ImageInfo | null>(null);
+  const [tileImages, setTileImages] = useState<ImageInfo[]>([]);
+  const [settings, setSettings] = useState(defaultSettings);
   const [generationStatus, setGenerationStatus] = useState<string | null>(null);
+  const [generationId, setGenerationId] = useState<string | null>(null);
 
-  const addTileImage = (image: Image) => {
-    setTileImages(prevImages => [...prevImages, image]);
+  const updateSettings = (newSettings: Partial<typeof defaultSettings>) => {
+    setSettings(prev => ({ ...prev, ...newSettings }));
   };
 
-  const removeTileImage = (id: string) => {
-    setTileImages(prevImages => prevImages.filter(image => image.id !== id));
-  };
-
-  const clearTileImages = () => {
-    setTileImages([]);
-  };
-
-  const updateSettings = (newSettings: Partial<MosaicSettings>) => {
-    setSettings(prevSettings => ({ ...prevSettings, ...newSettings }));
-  };
-
-  const resetSettings = () => {
-    setSettings(defaultSettings);
-  };
-
-  const value = {
+  const value: MosaicContextType = {
     mainImage,
-    tileImages,
-    settings,
-    generationId,
-    generationStatus,
     setMainImage,
-    addTileImage,
-    removeTileImage,
-    clearTileImages,
+    tileImages,
+    setTileImages,
+    settings,
     updateSettings,
-    resetSettings,
-    setGenerationId,
-    setGenerationStatus
+    generationStatus,
+    setGenerationStatus,
+    generationId,
+    setGenerationId
   };
 
   return (
-    <MosaicContext.Provider value={value}>
-      {children}
-    </MosaicContext.Provider>
+      <MosaicContext.Provider value={value}>
+        {children}
+      </MosaicContext.Provider>
   );
 };
+
+export const useMosaic = () => useContext(MosaicContext);

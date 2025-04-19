@@ -51,8 +51,23 @@ interface UpdateProjectData {
 class ProjectService {
   async getProjects(): Promise<Project[]> {
     try {
-      const response = await api.get<{ projects: Project[] }>('/api/projects');
-      return response.projects;
+      console.log('Fetching projects');
+      const response = await api.get('/projects/');
+      console.log('Projects response:', response);
+      
+      // Handle different response formats
+      if (Array.isArray(response)) {
+        return response;
+      } else if (response && response.projects) {
+        return response.projects;
+      } else if (response && Array.isArray(response.data)) {
+        return response.data;
+      } else if (response && response.data && response.data.projects) {
+        return response.data.projects;
+      }
+      
+      // Default to empty array if no valid format is found
+      return [];
     } catch (error) {
       console.error('Error fetching projects:', error);
       throw error;
@@ -61,7 +76,7 @@ class ProjectService {
 
   async getProject(id: number): Promise<Project> {
     try {
-      const response = await api.get<Project>(`/api/projects/${id}`);
+      const response = await api.get(`/projects/${id}`);
       return response;
     } catch (error) {
       console.error(`Error fetching project ${id}:`, error);
@@ -71,7 +86,7 @@ class ProjectService {
 
   async createProject(data: CreateProjectData): Promise<Project> {
     try {
-      const response = await api.post<Project>('/api/projects', data);
+      const response = await api.post('/projects', data);
       return response;
     } catch (error) {
       console.error('Error creating project:', error);
@@ -81,7 +96,7 @@ class ProjectService {
 
   async updateProject(id: number, data: UpdateProjectData): Promise<Project> {
     try {
-      const response = await api.put<Project>(`/api/projects/${id}`, data);
+      const response = await api.put(`/projects/${id}`, data);
       return response;
     } catch (error) {
       console.error(`Error updating project ${id}:`, error);
@@ -91,7 +106,7 @@ class ProjectService {
 
   async deleteProject(id: number): Promise<void> {
     try {
-      await api.delete(`/api/projects/${id}`);
+      await api.delete(`/projects/${id}`);
     } catch (error) {
       console.error(`Error deleting project ${id}:`, error);
       throw error;
