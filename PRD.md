@@ -276,7 +276,7 @@ After analyzing the technology options mentioned, here is the recommended stack 
 
     GET /api/images/tiles - Get user's tile collections
 
-    POST /api/generate - Generate mosaic with parameters
+    POST /api/generate/ - Generate mosaic with parameters
 
     GET /api/generate/{id}/status - Check generation status
 

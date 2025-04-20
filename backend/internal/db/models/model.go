@@ -72,6 +72,25 @@ type MosaicSettings struct {
 	UpdatedAt       time.Time
 }
 
+// GeneratedMosaic represents a generated mosaic image
+type GeneratedMosaic struct {
+	ID             uint      `gorm:"primaryKey"`
+	UserID         uint      `gorm:"not null;index"`
+	ProjectID      uint      `gorm:"not null;index"`
+	MainImageID    uint      `gorm:"index"`
+	Status         string    `gorm:"not null;default:'processing'"` // processing, completed, failed
+	SDPath         string    // Standard definition mosaic path
+	HDPath         string    // High definition mosaic path
+	TileSize       int       `gorm:"not null"`
+	TileDensity    int       `gorm:"not null"`
+	ColorAdjustment int       `gorm:"not null"`
+	Style          string    `gorm:"not null"`
+	Progress       int       `gorm:"not null;default:0"` // 0-100 percentage
+	ErrorMessage   string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 // Update the existing Image model to add the collections relationship
 func init() {
 }

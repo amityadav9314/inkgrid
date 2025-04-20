@@ -5,6 +5,7 @@ import { useMosaic } from '../context/MosaicContext';
 import MainImageSelector from '../components/mosaic/MainImageSelector';
 import TileImageSelector from '../components/mosaic/TileImageSelector';
 import MosaicSettings from '../components/mosaic/MosaicSettings';
+import MosaicGenerator from '../components/mosaic/MosaicGenerator';
 import Button from '../components/common/Button';
 import { projectService } from '../services/projectService';
 import { useAuth } from '../context/AuthContext';
@@ -223,12 +224,7 @@ const MosaicCreator: React.FC = () => {
       case 3:
         return <MosaicSettings projectId={id ? parseInt(id) : undefined} />;
       case 4:
-        return (
-            <div>
-              <h2>Generate & Export</h2>
-              <p>This feature is coming soon!</p>
-            </div>
-        );
+        return <MosaicGenerator projectId={id ? parseInt(id) : undefined} />;
       default:
         return null;
     }

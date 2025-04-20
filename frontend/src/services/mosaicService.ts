@@ -81,7 +81,7 @@ class MosaicService {
 
   async generateMosaic(data: MosaicGenerationRequest): Promise<MosaicGenerationResponse> {
     try {
-      return await api.post<MosaicGenerationResponse>('/generate', data);
+      return await api.post<MosaicGenerationResponse>('/generate/', data);
     } catch (error) {
       console.error('Error generating mosaic:', error);
       throw error;
@@ -118,6 +118,15 @@ class MosaicService {
       return await api.get(url);
     } catch (error) {
       console.error('Error fetching mosaic settings:', error);
+      throw error;
+    }
+  }
+
+  async getProjectMosaics(projectId: number): Promise<any> {
+    try {
+      return await api.get(`/projects/${projectId}/mosaics`);
+    } catch (error) {
+      console.error(`Error fetching mosaics for project ${projectId}:`, error);
       throw error;
     }
   }

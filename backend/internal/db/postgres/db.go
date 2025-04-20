@@ -41,6 +41,7 @@ func Init() {
 		&models.TileCollection{},
 		&models.CollectionImage{},
 		&models.MosaicSettings{},
+		&models.GeneratedMosaic{},
 	)
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)

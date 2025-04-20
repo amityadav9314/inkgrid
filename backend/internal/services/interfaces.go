@@ -29,3 +29,12 @@ type ImageService interface {
 	Delete(id uint, userID uint) error
 	// Add other image-related methods
 }
+
+// MosaicService defines mosaic-related operations
+type MosaicService interface {
+	SaveSettings(userID uint, settings *models.MosaicSettings) error
+	GetSettings(userID uint, projectID *uint) (*models.MosaicSettings, error)
+	GenerateMosaic(userID uint, projectID uint, mainImageID uint, tileImageIDs []uint, settings *models.MosaicSettings) (*models.GeneratedMosaic, error)
+	GetMosaicStatus(userID uint, mosaicID uint) (*models.GeneratedMosaic, error)
+	GetProjectMosaics(userID uint, projectID uint) ([]models.GeneratedMosaic, error)
+}

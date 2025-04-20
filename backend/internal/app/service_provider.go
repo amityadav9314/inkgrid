@@ -48,7 +48,7 @@ func (sp *ServiceProvider) initServices() {
 	sp.userService = services.NewUserService(sp.db)
 	sp.projectService = services.NewProjectService(sp.db)
 	sp.imageService = services.NewImageService(sp.db)
-	sp.mosaicService = services.NewMosaicService()
+	sp.mosaicService = services.NewMosaicService("./uploads")
 }
 
 // initHandlers initializes all handlers

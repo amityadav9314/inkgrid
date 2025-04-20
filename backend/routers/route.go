@@ -58,6 +58,7 @@ func InitRoutes(mainRouter *gin.Engine, environment string, serviceProvider *app
 			projects.PUT("/:id", serviceProvider.ProjectHandler().UpdateProject)
 			projects.DELETE("/:id", serviceProvider.ProjectHandler().DeleteProject)
 			projects.GET("/:id/images", serviceProvider.ImageHandler().GetProjectImages)
+			projects.GET("/:id/mosaics", serviceProvider.MosaicHandler().GetProjectMosaics)
 		}
 
 		// Mosaic generation routes (all require auth)

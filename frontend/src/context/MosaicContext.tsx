@@ -20,6 +20,7 @@ export interface MosaicContextType {
     tileSize: number;
     tileDensity: number;
     colorAdjustment: number;
+    style: string;
   };
   updateSettings: (newSettings: Partial<typeof defaultSettings>) => void;
   generationStatus: string | null;
@@ -32,6 +33,7 @@ const defaultSettings = {
   tileSize: 50,
   tileDensity: 80,
   colorAdjustment: 50,
+  style: 'classic',
 };
 
 // Create the context
