@@ -261,7 +261,7 @@ const Projects: React.FC = () => {
       <Container>
         <Header>
           <Title>My Projects</Title>
-          <Link to="/create">
+          <Link to="/projects/new">
             <Button primary>Create New</Button>
           </Link>
         </Header>
@@ -277,7 +277,7 @@ const Projects: React.FC = () => {
       <Container>
         <Header>
           <Title>My Projects</Title>
-          <Link to="/create">
+          <Link to="/projects/new">
             <Button primary>Create New</Button>
           </Link>
         </Header>
@@ -291,7 +291,7 @@ const Projects: React.FC = () => {
           <EmptyStateText>
             You haven't created any mosaic projects yet. Start by creating your first masterpiece!
           </EmptyStateText>
-          <Link to="/create">
+          <Link to="/projects/new">
             <Button primary>Create Your First Mosaic</Button>
           </Link>
         </EmptyState>
@@ -303,7 +303,7 @@ const Projects: React.FC = () => {
     <Container>
       <Header>
         <Title>My Projects</Title>
-        <Link to="/create">
+        <Link to="/projects/new">
           <Button primary>Create New</Button>
         </Link>
       </Header>
@@ -332,11 +332,11 @@ const Projects: React.FC = () => {
               </ProjectMeta>
               
               <ProjectActions>
-                <Link to={`/projects/${project.id}`} style={{ flex: 1 }}>
-                  <Button primary fullWidth>View</Button>
+                <Link to={`/projects/${project.id}/edit`} style={{ flex: 1 }}>
+                  <Button primary fullWidth>Edit</Button>
                 </Link>
-                <Link to={`/create?project=${project.id}`} style={{ flex: 1 }}>
-                  <Button secondary fullWidth>Edit</Button>
+                <Link to={`/projects/${project.id}/view`} style={{ flex: 1 }}>
+                  <Button secondary fullWidth>View</Button>
                 </Link>
               </ProjectActions>
             </ProjectContent>

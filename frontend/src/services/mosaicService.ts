@@ -102,6 +102,7 @@ class MosaicService {
     tile_density: number;
     color_adjustment: number;
     style: string;
+    project_id?: number;
   }): Promise<any> {
     try {
       return await api.post('/generate/settings', settings);
@@ -111,9 +112,10 @@ class MosaicService {
     }
   }
 
-  async getMosaicSettings(): Promise<any> {
+  async getMosaicSettings(projectId?: number): Promise<any> {
     try {
-      return await api.get('/generate/settings');
+      const url = projectId ? `/generate/settings?project_id=${projectId}` : '/generate/settings';
+      return await api.get(url);
     } catch (error) {
       console.error('Error fetching mosaic settings:', error);
       throw error;

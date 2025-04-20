@@ -123,7 +123,11 @@ interface ImagesArrayResponse {
 
 type UploadResponse = ImageResponse | ImageResponse[] | ImagesArrayResponse;
 
-const TileImageSelector: React.FC = () => {
+interface TileImageSelectorProps {
+  projectId?: number;
+}
+
+const TileImageSelector: React.FC<TileImageSelectorProps> = ({ projectId }) => {
   const { tileImages, setTileImages } = useMosaic();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -137,7 +141,8 @@ const TileImageSelector: React.FC = () => {
 
     try {
       const response = (await mosaicService.uploadTileImages(
-          files
+          files,
+          projectId
       )) as UploadResponse;
 
       // Debug the response structure

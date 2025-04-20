@@ -7,6 +7,9 @@ import LoadingIndicator from '../common/LoadingIndicator';
 import { mosaicService } from '../../services/mosaicService';
 import { config } from '../../config';
 
+interface MainImageSelectorProps {
+  projectId?: number;
+}
 
 const Container = styled.div`
   background-color: white;
@@ -48,7 +51,7 @@ const ImageActions = styled.div`
   gap: 0.5rem;
 `;
 
-const MainImageSelector: React.FC = () => {
+const MainImageSelector: React.FC<MainImageSelectorProps> = ({ projectId }) => {
   const { mainImage, setMainImage } = useMosaic();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -61,7 +64,7 @@ const MainImageSelector: React.FC = () => {
     setUploadError(null);
 
     try {
-      const response = await mosaicService.uploadMainImage(file);
+      const response = await mosaicService.uploadMainImage(file, projectId);
       console.log("response: ", response);
 
       // Format the image path with the base URL

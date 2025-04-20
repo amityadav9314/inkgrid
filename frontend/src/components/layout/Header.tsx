@@ -231,8 +231,7 @@ const Header: React.FC = () => {
         <NavLink to="/">Home</NavLink>
         {isAuthenticated && (
           <>
-            <NavLink to="/create">Create</NavLink>
-            <NavLink to="/projects">My Projects</NavLink>
+            <NavLink to="/projects/">My Projects</NavLink>
           </>
         )}
       </Nav>
@@ -270,8 +269,7 @@ const Header: React.FC = () => {
         <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
         {isAuthenticated ? (
           <>
-            <MobileNavLink to="/create" onClick={() => setMobileMenuOpen(false)}>Create</MobileNavLink>
-            <MobileNavLink to="/projects" onClick={() => setMobileMenuOpen(false)}>My Projects</MobileNavLink>
+            <MobileNavLink to="/projects/" onClick={() => setMobileMenuOpen(false)}>My Projects</MobileNavLink>
             <MobileNavLink to="/settings" onClick={() => setMobileMenuOpen(false)}>Settings</MobileNavLink>
             <MobileNavLink to="#" onClick={() => {
               setMobileMenuOpen(false);

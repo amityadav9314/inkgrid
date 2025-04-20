@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { useMosaic } from '../../context/MosaicContext';
 import { mosaicService } from '../../services/mosaicService';
 
-const MosaicSettings: React.FC = () => {
+interface MosaicSettingsProps {
+  projectId?: number;
+}
+
+const MosaicSettings: React.FC<MosaicSettingsProps> = ({ projectId }) => {
   const { settings, updateSettings } = useMosaic();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -16,11 +20,14 @@ const MosaicSettings: React.FC = () => {
   });
 
   useEffect(() => {
+    // Prevent unnecessary API calls
+    let isMounted = true;
+    
     const fetchSettings = async () => {
       setIsLoading(true);
       try {
-        const response = await mosaicService.getMosaicSettings();
-        if (response && response.settings) {
+        const response = await mosaicService.getMosaicSettings(projectId);
+        if (isMounted && response && response.settings) {
           // Map backend snake_case to frontend camelCase
           const fetchedSettings = {
             tileSize: response.settings.tile_size || settings.tileSize,
@@ -35,12 +42,19 @@ const MosaicSettings: React.FC = () => {
         console.error('Error fetching settings:', error);
         // If we can't fetch settings, we'll use the defaults from context
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchSettings();
-  }, [updateSettings, settings]);
+    
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId]); // Only depend on projectId, not settings or updateSettings
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -67,6 +81,7 @@ const MosaicSettings: React.FC = () => {
         tile_density: localSettings.tileDensity,
         color_adjustment: localSettings.colorAdjustment,
         style: localSettings.style,
+        project_id: projectId
       });
       
       // Update the global context with the new settings

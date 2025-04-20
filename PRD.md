@@ -259,9 +259,9 @@ After analyzing the technology options mentioned, here is the recommended stack 
     POST /api/auth/refresh - Refresh token
 
 ## Project APIs
-    GET /api/projects - List user projects
+    GET /api/projects/ - List user projects
 
-    POST /api/projects - Create new project
+    POST /api/projects/ - Create new project
 
     GET /api/projects/{id} - Get project details
 

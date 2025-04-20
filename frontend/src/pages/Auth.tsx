@@ -97,7 +97,7 @@ const Auth: React.FC = () => {
   useEffect(() => {
     // Redirect if already authenticated
     if (isAuthenticated) {
-      navigate('/projects');
+      navigate('/projects/');
     }
   }, [isAuthenticated, navigate]);
   
@@ -150,7 +150,7 @@ const Auth: React.FC = () => {
       } else {
         await register(formData.email, formData.password, formData.name);
       }
-      navigate('/projects');
+      navigate('/projects/');
     } catch (error) {
       console.error('Auth error:', error);
       setErrors({

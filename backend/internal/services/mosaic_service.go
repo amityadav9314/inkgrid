@@ -8,7 +8,7 @@ import (
 // MosaicService handles mosaic-related operations
 type MosaicService interface {
 	SaveSettings(userID uint, settings *models.MosaicSettings) error
-	GetSettings(userID uint) (*models.MosaicSettings, error)
+	GetSettings(userID uint, projectID *uint) (*models.MosaicSettings, error)
 }
 
 type mosaicService struct{}
@@ -39,19 +39,33 @@ func (s *mosaicService) SaveSettings(userID uint, settings *models.MosaicSetting
 }
 
 // GetSettings retrieves mosaic settings for a user
-func (s *mosaicService) GetSettings(userID uint) (*models.MosaicSettings, error) {
+func (s *mosaicService) GetSettings(userID uint, projectID *uint) (*models.MosaicSettings, error) {
 	var settings models.MosaicSettings
-	result := db.DB.Where("user_id = ?", userID).First(&settings)
+	
+	// Build query based on whether projectID is provided
+	query := db.DB.Where("user_id = ?", userID)
+	if projectID != nil {
+		query = query.Where("project_id = ?", *projectID)
+	}
+	
+	result := query.First(&settings)
 
 	if result.Error != nil {
 		// If no settings found, return default settings
-		return &models.MosaicSettings{
+		defaultSettings := &models.MosaicSettings{
 			UserID:          userID,
 			TileSize:        50,
 			TileDensity:     80,
 			ColorAdjustment: 50,
 			Style:           "classic",
-		}, nil
+		}
+		
+		// Set project ID if provided
+		if projectID != nil {
+			defaultSettings.ProjectID = projectID
+		}
+		
+		return defaultSettings, nil
 	}
 
 	return &settings, nil

@@ -86,7 +86,7 @@ class ProjectService {
 
   async createProject(data: CreateProjectData): Promise<Project> {
     try {
-      const response = await api.post('/projects', data);
+      const response = await api.post('/projects/', data);
       return response;
     } catch (error) {
       console.error('Error creating project:', error);

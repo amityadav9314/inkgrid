@@ -9,6 +9,7 @@ import Auth from './pages/Auth';
 import MosaicCreator from './pages/MosaicCreator';
 import Projects from './pages/Projects';
 import Settings from './pages/Settings';
+import NewProject from './pages/NewProject'; // Added import statement
 import './styles/global.css';
 import Sidebar from 'components/layout/Sidebar';
 
@@ -27,7 +28,9 @@ const App: React.FC = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/create" element={<MosaicCreator />} />
-                <Route path="/projects" element={<Projects />} />
+                <Route path="/projects/" element={<Projects />} />
+                <Route path="/projects/new" element={<NewProject />} />
+                <Route path="/projects/:id/edit" element={<MosaicCreator />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
             </main>

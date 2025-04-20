@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/amityadav9314/goinkgrid/internal/db/models"
@@ -119,14 +120,31 @@ func (h *MosaicHandler) SaveMosaicSettings(c *gin.Context) {
 		return
 	}
 
-	var settings models.MosaicSettings
-	if err := c.ShouldBindJSON(&settings); err != nil {
+	var requestBody struct {
+		TileSize        int     `json:"tile_size" binding:"required,min=10,max=200"`
+		TileDensity     int     `json:"tile_density" binding:"required,min=1,max=100"`
+		ColorAdjustment int     `json:"color_adjustment" binding:"required,min=0,max=100"`
+		Style           string  `json:"style" binding:"required,oneof=classic random flowing"`
+		ProjectID       *uint   `json:"project_id"`
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Create settings model
+	settings := &models.MosaicSettings{
+		UserID:          userID.(uint),
+		ProjectID:       requestBody.ProjectID,
+		TileSize:        requestBody.TileSize,
+		TileDensity:     requestBody.TileDensity,
+		ColorAdjustment: requestBody.ColorAdjustment,
+		Style:           requestBody.Style,
+	}
+
 	// Save settings to database associated with the user
-	err := h.mosaicService.SaveSettings(userID.(uint), &settings)
+	err := h.mosaicService.SaveSettings(userID.(uint), settings)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save settings"})
 		return
@@ -148,8 +166,20 @@ func (h *MosaicHandler) GetMosaicSettings(c *gin.Context) {
 		return
 	}
 
-	// Get settings from database for the user
-	settings, err := h.mosaicService.GetSettings(userID.(uint))
+	// Check if project ID is provided in query parameters
+	var projectID *uint
+	projectIDStr := c.Query("project_id")
+	if projectIDStr != "" {
+		// Convert string to uint
+		pid, err := strconv.ParseUint(projectIDStr, 10, 32)
+		if err == nil {
+			pidUint := uint(pid)
+			projectID = &pidUint
+		}
+	}
+
+	// Get settings from database for the user and project
+	settings, err := h.mosaicService.GetSettings(userID.(uint), projectID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve settings"})
 		return
