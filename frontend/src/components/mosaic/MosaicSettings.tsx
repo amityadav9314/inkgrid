@@ -21,11 +21,12 @@ const MosaicSettings: React.FC = () => {
       try {
         const response = await mosaicService.getMosaicSettings();
         if (response && response.settings) {
+          // Map backend snake_case to frontend camelCase
           const fetchedSettings = {
-            tileSize: response.settings.tile_size,
-            tileDensity: response.settings.tile_density,
-            colorAdjustment: response.settings.color_adjustment,
-            style: response.settings.style,
+            tileSize: response.settings.tile_size || settings.tileSize,
+            tileDensity: response.settings.tile_density || settings.tileDensity,
+            colorAdjustment: response.settings.color_adjustment || settings.colorAdjustment,
+            style: response.settings.style || 'classic',
           };
           setLocalSettings(fetchedSettings);
           updateSettings(fetchedSettings);
@@ -39,7 +40,7 @@ const MosaicSettings: React.FC = () => {
     };
 
     fetchSettings();
-  }, [updateSettings]);
+  }, [updateSettings, settings]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -60,10 +61,11 @@ const MosaicSettings: React.FC = () => {
     setSaveMessage(null);
     
     try {
+      // Convert frontend camelCase to backend snake_case
       await mosaicService.saveMosaicSettings({
-        tileSize: localSettings.tileSize,
-        tileDensity: localSettings.tileDensity,
-        colorAdjustment: localSettings.colorAdjustment,
+        tile_size: localSettings.tileSize,
+        tile_density: localSettings.tileDensity,
+        color_adjustment: localSettings.colorAdjustment,
         style: localSettings.style,
       });
       

@@ -4,18 +4,22 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/amityadav9314/goinkgrid/internal/db/models"
+	"github.com/amityadav9314/goinkgrid/internal/services"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 // MosaicHandler handles mosaic generation requests
 type MosaicHandler struct {
-	// TODO: Add mosaic service dependency
+	mosaicService services.MosaicService
 }
 
 // NewMosaicHandler creates a new mosaic handler
-func NewMosaicHandler() *MosaicHandler {
-	return &MosaicHandler{}
+func NewMosaicHandler(mosaicService services.MosaicService) *MosaicHandler {
+	return &MosaicHandler{
+		mosaicService: mosaicService,
+	}
 }
 
 // MosaicGenerationRequest represents the mosaic generation request
@@ -115,14 +119,18 @@ func (h *MosaicHandler) SaveMosaicSettings(c *gin.Context) {
 		return
 	}
 
-	var settings MosaicSettings
+	var settings models.MosaicSettings
 	if err := c.ShouldBindJSON(&settings); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// TODO: Save settings to database associated with the user
-	// For now, we'll just return success
+	// Save settings to database associated with the user
+	err := h.mosaicService.SaveSettings(userID.(uint), &settings)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save settings"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Settings saved successfully",
@@ -140,16 +148,15 @@ func (h *MosaicHandler) GetMosaicSettings(c *gin.Context) {
 		return
 	}
 
-	// TODO: Get settings from database for the user
-	// For now, return default settings
+	// Get settings from database for the user
+	settings, err := h.mosaicService.GetSettings(userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve settings"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"user_id": userID,
-		"settings": MosaicSettings{
-			TileSize:        50,
-			TileDensity:     80,
-			ColorAdjustment: 50,
-			Style:           "classic",
-		},
+		"settings": settings,
 	})
 }

@@ -17,6 +17,7 @@ type ServiceProvider struct {
 	userService    services.UserService
 	projectService services.ProjectService
 	imageService   services.ImageService
+	mosaicService  services.MosaicService
 
 	// Handlers
 	authHandler    *handlers.AuthHandler
@@ -47,6 +48,7 @@ func (sp *ServiceProvider) initServices() {
 	sp.userService = services.NewUserService(sp.db)
 	sp.projectService = services.NewProjectService(sp.db)
 	sp.imageService = services.NewImageService(sp.db)
+	sp.mosaicService = services.NewMosaicService()
 }
 
 // initHandlers initializes all handlers
@@ -54,7 +56,7 @@ func (sp *ServiceProvider) initHandlers() {
 	sp.authHandler = handlers.NewAuthHandler(sp.userService, sp.jwtSecret)
 	sp.projectHandler = handlers.NewProjectHandler(sp.projectService)
 	sp.imageHandler = handlers.NewImageHandler("./uploads", sp.imageService)
-	sp.mosaicHandler = handlers.NewMosaicHandler()
+	sp.mosaicHandler = handlers.NewMosaicHandler(sp.mosaicService)
 }
 
 // UserService returns the user service
@@ -70,6 +72,11 @@ func (sp *ServiceProvider) ProjectService() services.ProjectService {
 // ImageService returns the image service
 func (sp *ServiceProvider) ImageService() services.ImageService {
 	return sp.imageService
+}
+
+// MosaicService returns the mosaic service
+func (sp *ServiceProvider) MosaicService() services.MosaicService {
+	return sp.mosaicService
 }
 
 // AuthHandler returns the auth handler

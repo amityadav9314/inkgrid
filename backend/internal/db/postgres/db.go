@@ -40,6 +40,7 @@ func Init() {
 		&models.Image{},
 		&models.TileCollection{},
 		&models.CollectionImage{},
+		&models.MosaicSettings{},
 	)
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)

@@ -98,9 +98,9 @@ class MosaicService {
   }
 
   async saveMosaicSettings(settings: {
-    tileSize: number;
-    tileDensity: number;
-    colorAdjustment: number;
+    tile_size: number;
+    tile_density: number;
+    color_adjustment: number;
     style: string;
   }): Promise<any> {
     try {
