@@ -112,6 +112,18 @@ class ProjectService {
       throw error;
     }
   }
+  
+  async getProjectImages(id: number): Promise<{main_images: Image[], tile_images: Image[]}> {
+    try {
+      console.log(`Fetching images for project ${id}`);
+      const response = await api.get(`/projects/${id}/images`);
+      console.log('Project images response:', response);
+      return response;
+    } catch (error) {
+      console.error(`Error fetching images for project ${id}:`, error);
+      throw error;
+    }
+  }
 }
 
 export const projectService = new ProjectService();
