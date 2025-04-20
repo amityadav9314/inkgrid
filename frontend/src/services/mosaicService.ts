@@ -96,6 +96,29 @@ class MosaicService {
       throw error;
     }
   }
+
+  async saveMosaicSettings(settings: {
+    tileSize: number;
+    tileDensity: number;
+    colorAdjustment: number;
+    style: string;
+  }): Promise<any> {
+    try {
+      return await api.post('/generate/settings', settings);
+    } catch (error) {
+      console.error('Error saving mosaic settings:', error);
+      throw error;
+    }
+  }
+
+  async getMosaicSettings(): Promise<any> {
+    try {
+      return await api.get('/generate/settings');
+    } catch (error) {
+      console.error('Error fetching mosaic settings:', error);
+      throw error;
+    }
+  }
 }
 
 export const mosaicService = new MosaicService();

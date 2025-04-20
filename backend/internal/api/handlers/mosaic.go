@@ -37,6 +37,14 @@ type MosaicGenerationResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// MosaicSettings represents the settings for mosaic generation
+type MosaicSettings struct {
+	TileSize        int     `json:"tile_size" binding:"required,min=10,max=200"`
+	TileDensity     int     `json:"tile_density" binding:"required,min=1,max=100"`
+	ColorAdjustment int     `json:"color_adjustment" binding:"required,min=0,max=100"`
+	Style           string  `json:"style" binding:"required,oneof=classic random flowing"`
+}
+
 // GenerateMosaic handles mosaic generation requests
 func (h *MosaicHandler) GenerateMosaic(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
@@ -95,5 +103,53 @@ func (h *MosaicHandler) GetGenerationStatus(c *gin.Context) {
 		"created_at": time.Now().Add(-5 * time.Minute),
 		"updated_at": time.Now(),
 		"result_url": "/api/projects/1/mosaic.jpg", // If completed
+	})
+}
+
+// SaveMosaicSettings handles saving mosaic settings
+func (h *MosaicHandler) SaveMosaicSettings(c *gin.Context) {
+	// Get user ID from context (set by auth middleware)
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var settings MosaicSettings
+	if err := c.ShouldBindJSON(&settings); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// TODO: Save settings to database associated with the user
+	// For now, we'll just return success
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Settings saved successfully",
+		"user_id": userID,
+		"settings": settings,
+	})
+}
+
+// GetMosaicSettings returns the saved mosaic settings for a user
+func (h *MosaicHandler) GetMosaicSettings(c *gin.Context) {
+	// Get user ID from context (set by auth middleware)
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// TODO: Get settings from database for the user
+	// For now, return default settings
+
+	c.JSON(http.StatusOK, gin.H{
+		"user_id": userID,
+		"settings": MosaicSettings{
+			TileSize:        50,
+			TileDensity:     80,
+			ColorAdjustment: 50,
+			Style:           "classic",
+		},
 	})
 }

@@ -28,15 +28,36 @@ type Project struct {
 }
 
 type Image struct {
+	ID          uint   `gorm:"primaryKey"`
+	UserID      uint   `gorm:"not null;index"`
+	ProjectID   *uint  `gorm:"index"`
+	Type        string // "main" or "tile"
+	Path        string
+	Filename    string
+	Width       int
+	Height      int
+	Format      string
+	CreatedAt   time.Time
+	ColorData   datatypes.JSON   // for tiles
+	Collections []TileCollection `gorm:"many2many:collection_images;"`
+}
+
+// TileCollection represents a group of tile images
+type TileCollection struct {
 	ID        uint   `gorm:"primaryKey"`
 	UserID    uint   `gorm:"not null;index"`
-	ProjectID *uint  `gorm:"index"`
-	Type      string // "main" or "tile"
-	Path      string
-	Filename  string
-	Width     int
-	Height    int
-	Format    string
+	Name      string `gorm:"not null"`
 	CreatedAt time.Time
-	ColorData datatypes.JSON // for tiles
+	Images    []Image `gorm:"many2many:collection_images;"`
+}
+
+// CollectionImage represents the many-to-many relationship
+// between collections and images
+type CollectionImage struct {
+	CollectionID uint `gorm:"primaryKey"`
+	ImageID      uint `gorm:"primaryKey"`
+}
+
+// Update the existing Image model to add the collections relationship
+func init() {
 }

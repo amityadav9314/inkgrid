@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/amityadav9314/goinkgrid/internal/services"
 	"net/http"
 	"path/filepath"
 
@@ -10,14 +11,15 @@ import (
 
 // ImageHandler handles image-related requests
 type ImageHandler struct {
-	// TODO: Add image service dependency
-	uploadDir string
+	uploadDir    string
+	imageService services.ImageService
 }
 
 // NewImageHandler creates a new image handler
-func NewImageHandler(uploadDir string) *ImageHandler {
+func NewImageHandler(uploadPath string, imageService services.ImageService) *ImageHandler {
 	return &ImageHandler{
-		uploadDir: uploadDir,
+		uploadDir:    uploadPath,
+		imageService: imageService,
 	}
 }
 
@@ -111,12 +113,12 @@ func (h *ImageHandler) UploadTileImages(c *gin.Context) {
 	// Get collection ID from query if present
 	// Commented out until implemented
 	/*
-	var collectionID *uint
-	if collectionIDStr := c.Query("collection_id"); collectionIDStr != "" {
-		cid := uint(0)
-		// TODO: Convert collectionIDStr to uint
-		collectionID = &cid
-	}
+		var collectionID *uint
+		if collectionIDStr := c.Query("collection_id"); collectionIDStr != "" {
+			cid := uint(0)
+			// TODO: Convert collectionIDStr to uint
+			collectionID = &cid
+		}
 	*/
 
 	// Get files from form
@@ -189,17 +191,17 @@ func (h *ImageHandler) GetTileCollections(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"collections": []gin.H{
 			{
-				"id":         1,
-				"user_id":    userID,
-				"name":       "Nature",
-				"created_at": "2023-01-01T00:00:00Z",
+				"id":          1,
+				"user_id":     userID,
+				"name":        "Nature",
+				"created_at":  "2023-01-01T00:00:00Z",
 				"image_count": 10,
 			},
 			{
-				"id":         2,
-				"user_id":    userID,
-				"name":       "Family",
-				"created_at": "2023-01-02T00:00:00Z",
+				"id":          2,
+				"user_id":     userID,
+				"name":        "Family",
+				"created_at":  "2023-01-02T00:00:00Z",
 				"image_count": 15,
 			},
 		},

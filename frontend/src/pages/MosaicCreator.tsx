@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useMosaic } from '../context/MosaicContext';
 import MainImageSelector from '../components/mosaic/MainImageSelector';
 import TileImageSelector from '../components/mosaic/TileImageSelector';
+import MosaicSettings from '../components/mosaic/MosaicSettings';
 import Button from '../components/common/Button';
 
 const Container = styled.div`
@@ -111,7 +112,7 @@ const MosaicCreator: React.FC = () => {
       case 2:
         return <TileImageSelector />;
       case 3:
-        return <div>Mosaic Settings (Coming Soon)</div>;
+        return <MosaicSettings />;
       case 4:
         return <div>Generate & Export (Coming Soon)</div>;
       default:

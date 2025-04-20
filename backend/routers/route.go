@@ -2,24 +2,17 @@ package routers
 
 import (
 	"github.com/amityadav9314/goinkgrid/controllers"
-	"github.com/amityadav9314/goinkgrid/internal/api/handlers"
 	"github.com/amityadav9314/goinkgrid/internal/api/middleware"
-	akyWs "github.com/amityadav9314/goinkgrid/pkg/websocket"
+	"github.com/amityadav9314/goinkgrid/internal/app"
 	"github.com/gin-gonic/gin"
 )
 
-func InitRoutes(mainRouter *gin.Engine, environment string, pool *akyWs.Pool) {
+func InitRoutes(mainRouter *gin.Engine, environment string, serviceProvider *app.ServiceProvider) {
 	// Serve static files from uploads directory
 	mainRouter.Static("/uploads", "./uploads")
 
-	// Initialize handlers
-	authHandler := handlers.NewAuthHandler("your-jwt-secret-key")
-	imageHandler := handlers.NewImageHandler("./uploads")
-	mosaicHandler := handlers.NewMosaicHandler()
-	projectHandler := handlers.NewProjectHandler()
-
 	// Initialize middleware
-	authMiddleware := middleware.NewAuthMiddleware("your-jwt-secret-key")
+	authMiddleware := middleware.NewAuthMiddleware(serviceProvider.JWTSecret())
 
 	// Base API group
 	api := mainRouter.Group("/goinkgrid")
@@ -28,15 +21,15 @@ func InitRoutes(mainRouter *gin.Engine, environment string, pool *akyWs.Pool) {
 	api.GET("/health", controllers.HandleHealthCheck)
 	api.GET("/ws", controllers.HandleWebSocket)
 	api.GET("/v2/ws", func(c *gin.Context) {
-		controllers.HandleWebSocketV2(c, pool)
+		controllers.HandleWebSocketV2(c, serviceProvider.Pool())
 	})
 
 	// Auth routes
 	auth := api.Group("/auth")
 	{
-		auth.POST("/register", authHandler.Register)
-		auth.POST("/login", authHandler.Login)
-		auth.POST("/refresh", authHandler.RefreshToken)
+		auth.POST("/register", serviceProvider.AuthHandler().Register)
+		auth.POST("/login", serviceProvider.AuthHandler().Login)
+		auth.POST("/refresh", serviceProvider.AuthHandler().RefreshToken)
 	}
 
 	// API routes that require authentication
@@ -49,29 +42,31 @@ func InitRoutes(mainRouter *gin.Engine, environment string, pool *akyWs.Pool) {
 			imagesAuth := images.Group("/")
 			imagesAuth.Use(authMiddleware.RequireAuth())
 			{
-				imagesAuth.POST("/main", imageHandler.UploadMainImage)
-				imagesAuth.POST("/tiles", imageHandler.UploadTileImages)
-				imagesAuth.GET("/tiles", imageHandler.GetTileCollections)
+				imagesAuth.POST("/main", serviceProvider.ImageHandler().UploadMainImage)
+				imagesAuth.POST("/tiles", serviceProvider.ImageHandler().UploadTileImages)
+				imagesAuth.GET("/tiles", serviceProvider.ImageHandler().GetTileCollections)
 			}
 		}
 
 		// Project routes (all require auth)
-		projects := apiV1.Group("/projects") // Removed trailing slash to prevent redirects
+		projects := apiV1.Group("/projects")
 		projects.Use(authMiddleware.RequireAuth())
 		{
-			projects.GET("/", projectHandler.ListProjects)
-			projects.POST("/", projectHandler.CreateProject)
-			projects.GET("/:id", projectHandler.GetProject)
-			projects.PUT("/:id", projectHandler.UpdateProject)
-			projects.DELETE("/:id", projectHandler.DeleteProject)
+			projects.GET("/", serviceProvider.ProjectHandler().ListProjects)
+			projects.POST("/", serviceProvider.ProjectHandler().CreateProject)
+			projects.GET("/:id", serviceProvider.ProjectHandler().GetProject)
+			projects.PUT("/:id", serviceProvider.ProjectHandler().UpdateProject)
+			projects.DELETE("/:id", serviceProvider.ProjectHandler().DeleteProject)
 		}
 
 		// Mosaic generation routes (all require auth)
 		generate := apiV1.Group("/generate")
 		generate.Use(authMiddleware.RequireAuth())
 		{
-			generate.POST("/", mosaicHandler.GenerateMosaic)
-			generate.GET("/:id/status", mosaicHandler.GetGenerationStatus)
+			generate.POST("/", serviceProvider.MosaicHandler().GenerateMosaic)
+			generate.GET("/:id/status", serviceProvider.MosaicHandler().GetGenerationStatus)
+			generate.POST("/settings", serviceProvider.MosaicHandler().SaveMosaicSettings)
+			generate.GET("/settings", serviceProvider.MosaicHandler().GetMosaicSettings)
 		}
 	}
 }

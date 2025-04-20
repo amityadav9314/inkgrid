@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	// db "github.com/amityadav9314/goinkgrid/internal/db/postgres"
-	akyWs "github.com/amityadav9314/goinkgrid/pkg/websocket"
-
 	"github.com/amityadav9314/goinkgrid/config"
 	"github.com/amityadav9314/goinkgrid/constants"
+	"github.com/amityadav9314/goinkgrid/internal/app"
+	db "github.com/amityadav9314/goinkgrid/internal/db/postgres"
 	"github.com/amityadav9314/goinkgrid/logger"
+	akyWs "github.com/amityadav9314/goinkgrid/pkg/websocket"
 	"github.com/amityadav9314/goinkgrid/routers"
 	"github.com/amityadav9314/goinkgrid/utils"
 	"github.com/gin-gonic/gin"
@@ -63,13 +63,24 @@ func main() {
 		c.Status(http.StatusNoContent)
 	})
 
-	// db.Init()
+	// Initialize database
+	db.Init()
+
+	// Get JWT secret from environment
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "your-jwt-secret-key" // For development only
+	}
 
 	// Initialize websocket pool
-	var pool = akyWs.NewPool()
+	pool := akyWs.NewPool()
 	go pool.Start()
 
-	routers.InitRoutes(mainRouter, ENVIRONMENT, pool)
+	// Initialize service provider with dependencies
+	serviceProvider := app.NewServiceProvider(db.DB, jwtSecret, pool)
+
+	// Set up routes with the service provider
+	routers.InitRoutes(mainRouter, ENVIRONMENT, serviceProvider)
 
 	// Create HTTP server
 	server := &http.Server{

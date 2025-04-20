@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	models "github.com/amityadav9314/goinkgrid/internal/db/models"
+	"github.com/amityadav9314/goinkgrid/internal/services"
 	"net/http"
 	"time"
 
@@ -11,14 +13,15 @@ import (
 
 // AuthHandler handles authentication related requests
 type AuthHandler struct {
-	// TODO: Add user service dependency
-	jwtSecret []byte
+	userService services.UserService
+	jwtSecret   []byte
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(jwtSecret string) *AuthHandler {
+func NewAuthHandler(userService services.UserService, jwtSecret string) *AuthHandler {
 	return &AuthHandler{
-		jwtSecret: []byte(jwtSecret),
+		userService: userService,
+		jwtSecret:   []byte(jwtSecret),
 	}
 }
 
@@ -50,9 +53,36 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// TODO: Check if user already exists
-	// TODO: Hash password
-	// TODO: Create user in database
+	// Check if user already exists
+	existingUser, err := h.userService.FindByEmail(req.Email)
+	if err != nil && err.Error() != "record not found" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check existing user"})
+		return
+	}
+	if existingUser != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
+		return
+	}
+
+	// Hash password
+	hashedPassword, err := HashPassword(req.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process password"})
+		return
+	}
+
+	// Create user in database
+	newUser := &models.User{
+		Email:        req.Email,
+		PasswordHash: hashedPassword,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+
+	if err := h.userService.Create(newUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
@@ -65,12 +95,21 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// TODO: Get user from database
-	// TODO: Compare passwords
-	// TODO: Generate JWT token
+	// Get user from database
+	user, err := h.userService.FindByEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		return
+	}
 
-	// Mock implementation for now
-	token, refreshToken, expiresAt, err := h.generateTokens(1, req.Email)
+	// Compare passwords
+	if !CheckPasswordHash(req.Password, user.PasswordHash) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		return
+	}
+
+	// Generate JWT token
+	token, refreshToken, expiresAt, err := h.generateTokens(user.ID, req.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return

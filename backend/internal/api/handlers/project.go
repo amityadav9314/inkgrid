@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/amityadav9314/goinkgrid/internal/services"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,24 +11,26 @@ import (
 
 // ProjectHandler handles project-related requests
 type ProjectHandler struct {
-	// TODO: Add project service dependency
+	projectService services.ProjectService
 }
 
 // NewProjectHandler creates a new project handler
-func NewProjectHandler() *ProjectHandler {
-	return &ProjectHandler{}
+func NewProjectHandler(projectService services.ProjectService) *ProjectHandler {
+	return &ProjectHandler{
+		projectService: projectService,
+	}
 }
 
 // ProjectResponse represents a project response
 type ProjectResponse struct {
-	ID          uint       `json:"id"`
-	UserID      uint       `json:"user_id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	Settings    gin.H      `json:"settings"`
-	Status      string     `json:"status"`
+	ID          uint           `json:"id"`
+	UserID      uint           `json:"user_id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	Settings    gin.H          `json:"settings"`
+	Status      string         `json:"status"`
 	MainImage   *ImageResponse `json:"main_image,omitempty"`
 }
 
